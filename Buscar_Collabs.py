@@ -85,6 +85,7 @@ def verificar_duplicados(df_actual, nuevo_registro):
             (df_actual['Titulo'] == nuevo_registro['Titulo'])).any()
 
 # Función para buscar coincidencias por ISRC y lanzamiento, y luego sumar los porcentajes
+# Función para buscar coincidencias por ISRC y lanzamiento, y luego sumar los porcentajes
 def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_values):
     # Verificar si el archivo ya existe antes de intentar cargar las hojas
     if os.path.exists('Agrupacion_y_Unificacion_obras.xlsx'):
@@ -106,7 +107,7 @@ def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_value
 
     # Lista de columnas que contienen identificadores
     columnas_identificadores = [
-        'Autor', 'Apellido', 'MLC', 'ISWC', 'USA (BMI-ASCAP)', 'WORK ID', 'Harry Fox', 
+        'MLC', 'ISWC', 'USA (BMI-ASCAP)', 'WORK ID', 'Harry Fox', 
         'MEXICO (SACM)', 'GUATEMALA (AEI)', 'COLOMBIA (SAYCO)', 'ACINPRO analogo', 
         'ACINPRO digital', 'ARGENTINA (SADAIC)', 'BRASIL', 'ESPAÑA SGAE'
     ]
@@ -138,6 +139,13 @@ def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_value
 
                     print(f"Suma de porcentajes para ISRC '{isrc}' con lanzamiento '{lanzamiento}': {total_suma:.2f}%\n")
 
+                    # Recopilar los nombres completos (Autor y Apellido)
+                    nombres_completos_unificados = ', '.join(
+                        (match['Autor'] + ' ' + match['Apellido']).strip() 
+                        for match in coincidencias_filtradas 
+                        if pd.notna(match['Autor']) and pd.notna(match['Apellido'])
+                    )
+
                     # Recopilar los valores de los identificadores (MLC, ISWC, etc.)
                     identificadores = {}
                     for col in columnas_identificadores:
@@ -149,6 +157,7 @@ def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_value
                         'ISRC': isrc,
                         'Lanzamiento': lanzamiento,
                         'Titulo': row.get('Titulo', ''),
+                        'Autores': nombres_completos_unificados,
                         'Total Porcentaje': total_suma
                     }
 
@@ -200,6 +209,7 @@ def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_value
             print(f"\nLas nuevas obras de los grupos han sido exportadas en la hoja 'Unificación obras'.\n")
         else:
             print("No se encontraron nuevas obras para exportar en 'Unificación obras'.")
+
 
 def main(base_file=None):
     config_file = 'config.json'

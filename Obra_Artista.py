@@ -14,7 +14,7 @@ def verificar_duplicados(df_actual, nuevo_registro):
         (df_actual['Lanzamiento'] == nuevo_registro['Lanzamiento'])
     ).any()
 
-def exportar_sin_duplicados(df_nuevos, archivo, columnas_a_exportar):
+def exportar_sin_duplicados(df_nuevos, archivo, columnas_a_exportar, sheet_name):
     """Función que exporta los datos a un archivo, verificando y evitando duplicados"""
     if os.path.exists(archivo):
         df_existente = pd.read_excel(archivo)
@@ -30,9 +30,10 @@ def exportar_sin_duplicados(df_nuevos, archivo, columnas_a_exportar):
         df_combinado = df_nuevos
         print(f"El archivo {archivo} no existe. Creando un nuevo archivo.")
 
-    # Exportar los datos al archivo
-    df_combinado[columnas_a_exportar].to_excel(archivo, index=False)
-    print(f"Datos exportados correctamente a {archivo}.")
+    # Exportar los datos al archivo con el nombre de la hoja personalizada
+    with pd.ExcelWriter(archivo, engine='openpyxl') as writer:
+        df_combinado[columnas_a_exportar].to_excel(writer, sheet_name=sheet_name, index=False)
+    print(f"Datos exportados correctamente a {archivo} con la hoja '{sheet_name}'.")
 
 def main():
     config_file = 'config.json'
@@ -136,20 +137,21 @@ def main():
     opcion_exportar = input("¿Deseas exportar todas las obras, solo filtradas por porcentaje (100%), o colaboraciones? (todo/filtrado/colaboracion): ")
 
     compositor_filename = compositor.replace(" ", "_").replace("/", "_").replace("\\", "_")
+    nombre_hoja = f"Obras 100 {compositor}"  # Crear nombre dinámico para la hoja
 
     if opcion_exportar == "filtrado":
         obras_100 = resultados[resultados['%'] == 100]
-        exportar_sin_duplicados(obras_100, f'obras_compositor_100_{compositor_filename}.xlsx', columnas_a_exportar)
+        exportar_sin_duplicados(obras_100, f'obras_compositor_100_{compositor_filename}.xlsx', columnas_a_exportar, sheet_name=f'{compositor} obras 100')
 
     elif opcion_exportar == "colaboracion":
         obras_100 = resultados[resultados['%'] == 100]
         obras_colaboracion = resultados[resultados['%'] < 100]
 
-        exportar_sin_duplicados(obras_100, f'obras_compositor_100_{compositor_filename}.xlsx', columnas_a_exportar)
-        exportar_sin_duplicados(obras_colaboracion, 'colaboraciones.xlsx', columnas_a_exportar)
+        exportar_sin_duplicados(obras_100, f'obras_compositor_100_{compositor_filename}.xlsx', columnas_a_exportar, sheet_name=f'{compositor} obras 100')
+        exportar_sin_duplicados(obras_colaboracion, 'colaboraciones.xlsx', columnas_a_exportar, sheet_name='Colaboraciones')
 
     else:
-        exportar_sin_duplicados(resultados, f'obras_compositor_todas_{compositor_filename}.xlsx', columnas_a_exportar)
+        exportar_sin_duplicados(resultados, f'obras_compositor_todas_{compositor_filename}.xlsx', columnas_a_exportar, sheet_name=f'{compositor} obras completas')
 
     with open(config_file, 'w', encoding='utf-8') as f:
         json.dump(config, f, ensure_ascii=False, indent=4)
