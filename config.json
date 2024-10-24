@@ -1,0 +1,13 @@
+{
+    "base_file": "METADATA CENTRAL.xlsx",
+    "invalid_values": [
+        " ",
+        "N/A",
+        "",
+        "",
+        "?"
+    ],
+    "excel_file": "METADATA CENTRAL.xlsx",
+    "sheet_name": "MC",
+    "header_row": 1
+}
