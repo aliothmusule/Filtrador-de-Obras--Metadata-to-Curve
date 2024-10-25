@@ -85,16 +85,15 @@ def verificar_duplicados(df_actual, nuevo_registro):
             (df_actual['Titulo'] == nuevo_registro['Titulo'])).any()
 
 # Función para buscar coincidencias por ISRC y lanzamiento, y luego sumar los porcentajes
-# Función para buscar coincidencias por ISRC y lanzamiento, y luego sumar los porcentajes
 def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_values):
     # Verificar si el archivo ya existe antes de intentar cargar las hojas
     if os.path.exists('Agrupacion_y_Unificacion_obras.xlsx'):
         try:
-            df_grupos_existente = pd.read_excel('Agrupacion_y_Unificacion_obras.xlsx', sheet_name='Agrupación obras')
+            df_grupos_existente = pd.read_excel('Agrupacion_y_Unificacion_obras.xlsx', sheet_name='Unificación_Obras')
         except ValueError:
             df_grupos_existente = pd.DataFrame()  # Si la hoja no existe, iniciar un DataFrame vacío
         try:
-            df_obras_existente = pd.read_excel('Agrupacion_y_Unificacion_obras.xlsx', sheet_name='Unificación obras')
+            df_obras_existente = pd.read_excel('Agrupacion_y_Unificacion_obras.xlsx', sheet_name='Agrupación_Obras')
         except ValueError:
             df_obras_existente = pd.DataFrame()  # Si la hoja no existe, iniciar un DataFrame vacío
     else:
@@ -104,6 +103,7 @@ def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_value
     # DataFrame para guardar los grupos de obras
     grupos_resultados = []
     obras_grupos = []  # Lista para guardar todas las obras que pertenecen a un grupo
+    obras_no_agrupadas = []  # Lista para guardar las obras que no tienen coincidencias
 
     # Lista de columnas que contienen identificadores
     columnas_identificadores = [
@@ -158,7 +158,8 @@ def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_value
                         'Lanzamiento': lanzamiento,
                         'Titulo': row.get('Titulo', ''),
                         'Autores': nombres_completos_unificados,
-                        'Total Porcentaje': total_suma
+                        'Total Porcentaje': total_suma,
+                        'Grupo Color': colores[color_index % len(colores)]  # Asignar color al grupo
                     }
 
                     # Agregar los identificadores al grupo
@@ -170,7 +171,7 @@ def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_value
 
                     # Agregar todas las obras del grupo a la lista 'obras_grupos'
                     for obra in coincidencias_filtradas:
-                        obra['Grupo Color'] = colores[color_index % len(colores)]  # Asignar color al grupo
+                        obra['Grupo Color'] = colores[color_index % len(colores)]  # Asignar el mismo color para las obras del grupo
                         
                         # Verificar si ya existe en la hoja de unificación
                         if df_obras_existente.empty or not verificar_duplicados(df_obras_existente, obra):
@@ -180,36 +181,58 @@ def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_value
                     color_index += 1
                 else:
                     print(f"No se encontraron coincidencias para ISRC '{isrc}' con el lanzamiento '{lanzamiento}'.\n")
+                    # Si no se encuentra coincidencia, agregar la obra a 'No Agrupados'
+                    row['Motivo'] = "Sin coincidencia por lanzamiento"
+                    obras_no_agrupadas.append(row)
             else:
                 print(f"No se encontraron coincidencias para ISRC '{isrc}'.\n")
+                row['Motivo'] = "Sin coincidencia por ISRC"
+                obras_no_agrupadas.append(row)
         else:
             print(f"No se pudo procesar el registro sin un ISRC válido en la fila {index + 2}.\n")
 
-    # Exportar todo en un único archivo con dos hojas
+    # Exportar todo en un único archivo con tres hojas
     with pd.ExcelWriter('Agrupacion_y_Unificacion_obras.xlsx', engine='openpyxl', mode='a' if os.path.exists('Agrupacion_y_Unificacion_obras.xlsx') else 'w') as writer:
         if grupos_resultados:
             df_grupos = pd.DataFrame(grupos_resultados)
-            df_grupos.to_excel(writer, sheet_name='Agrupación obras', index=False)
-            print(f"\nLos nuevos grupos de obras han sido exportados en la hoja 'Agrupación obras'.")
+            df_grupos.to_excel(writer, sheet_name='Unificación_Obras', index=False)
+            print(f"\nLos nuevos grupos de obras han sido exportados en la hoja 'Unificación_Obras'.")
         else:
             print("No se encontraron nuevos grupos de obras para exportar.")
 
         if obras_grupos:
             df_obras_grupos = pd.DataFrame(obras_grupos)
-            df_obras_grupos.to_excel(writer, sheet_name='Unificación obras', index=False)
-            # Aplicar el coloreado de fondo por grupo
-            wb = writer.book
-            ws = writer.sheets['Unificación obras']
+            df_obras_grupos.to_excel(writer, sheet_name='Agrupación_Obras', index=False)
+            print(f"\nLas nuevas obras de los grupos han sido exportadas en la hoja 'Agrupación_Obras'.")
 
-            for i, row in df_obras_grupos.iterrows():
-                color_fill = PatternFill(start_color=row['Grupo Color'], end_color=row['Grupo Color'], fill_type="solid")
-                for j in range(1, len(df_obras_grupos.columns) + 1):  # Aplicar el color a cada celda en la fila
-                    ws.cell(row=i + 2, column=j).fill = color_fill
+        if obras_no_agrupadas:
+            df_no_agrupados = pd.DataFrame(obras_no_agrupadas)
+            df_no_agrupados.to_excel(writer, sheet_name='No Agrupados', index=False)
+            print(f"\nLas obras no agrupadas han sido exportadas en la hoja 'No Agrupados'.")
 
-            print(f"\nLas nuevas obras de los grupos han sido exportadas en la hoja 'Unificación obras'.\n")
-        else:
-            print("No se encontraron nuevas obras para exportar en 'Unificación obras'.")
+    # Aplicar el coloreado de fondo por grupo después de haber exportado
+    wb = load_workbook('Agrupacion_y_Unificacion_obras.xlsx')
+    
+    # Colorear "Unificación_Obras"
+    ws_grupos = wb['Unificación_Obras']
+    for i in range(2, ws_grupos.max_row + 1):  # Comenzamos desde la fila 2 (sin encabezado)
+        color_hex = ws_grupos.cell(row=i, column=ws_grupos.max_column).value
+        if color_hex:
+            color_fill = PatternFill(start_color=color_hex, end_color=color_hex, fill_type="solid")
+            for j in range(1, ws_grupos.max_column):  # No colorear la columna de color
+                ws_grupos.cell(row=i, column=j).fill = color_fill
 
+    # Colorear "Agrupación_Obras"
+    ws_obras = wb['Agrupación_Obras']
+    for i in range(2, ws_obras.max_row + 1):  # Comenzamos desde la fila 2 (sin encabezado)
+        color_hex = ws_obras.cell(row=i, column=ws_obras.max_column).value
+        if color_hex:
+            color_fill = PatternFill(start_color=color_hex, end_color=color_hex, fill_type="solid")
+            for j in range(1, ws_obras.max_column):  # No colorear la columna de color
+                ws_obras.cell(row=i, column=j).fill = color_fill
+
+    wb.save('Agrupacion_y_Unificacion_obras.xlsx')
+    print("\nColores aplicados correctamente en las hojas 'Unificación_Obras' y 'Agrupación_Obras'.")
 
 def main(base_file=None):
     config_file = 'config.json'
@@ -239,6 +262,7 @@ def main(base_file=None):
     # Llamar a la función de búsqueda y suma por ISRC y lanzamiento
     buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, config['invalid_values'])
 
+
 if __name__ == '__main__':
     titulo = "Agrupación y Unificación de obras"
     autor = "Alioth Musule A."
@@ -255,4 +279,3 @@ if __name__ == '__main__':
     print(f"                                Hecho por {autor}")
     
     main()  # Usa el archivo predeterminado
-    # main('otro_archivo.xlsx')  # Usa otro archivo si es necesario
