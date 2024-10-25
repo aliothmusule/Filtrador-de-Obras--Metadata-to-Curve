@@ -58,7 +58,7 @@ def cargar_configuracion(config_file):
     if 'sheet_name_metadata' not in config:
         config['sheet_name_metadata'] = 0
     if 'invalid_values' not in config:
-        config['invalid_values'] = ["N/A", "", None]
+        config['invalid_values'] = ["N/A", "","NO MLC",'NO', None]
 
     return config
 
@@ -157,8 +157,8 @@ def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_value
                         'ISRC': isrc,
                         'Lanzamiento': lanzamiento,
                         'Titulo': row.get('Titulo', ''),
-                        'Autores': nombres_completos_unificados,
-                        'Total Porcentaje': total_suma,
+                        'Autor': nombres_completos_unificados,
+                        '%': total_suma,
                         'Grupo Color': colores[color_index % len(colores)]  # Asignar color al grupo
                     }
 

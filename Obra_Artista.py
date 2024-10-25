@@ -6,6 +6,14 @@ import os
 import glob
 import json
 
+# Valores no válidos
+VALORES_NO_VALIDOS = ["N/A", "", "NO MLC", "NO", None]
+
+def eliminar_valores_no_validos(df):
+    """Elimina valores no válidos de las celdas en el DataFrame."""
+    df = df.applymap(lambda x: None if x in VALORES_NO_VALIDOS else x)
+    return df.dropna(how='all')  # Eliminar filas completamente vacías
+
 def verificar_duplicados(df_actual, nuevo_registro):
     """Verifica si el nuevo registro ya existe en el DataFrame"""
     return (
@@ -16,14 +24,19 @@ def verificar_duplicados(df_actual, nuevo_registro):
 
 def exportar_sin_duplicados(df_nuevos, archivo, columnas_a_exportar, sheet_name):
     """Función que exporta los datos a un archivo, verificando y evitando duplicados"""
+    df_nuevos = eliminar_valores_no_validos(df_nuevos)  # Eliminar valores no válidos
+
     if os.path.exists(archivo):
         df_existente = pd.read_excel(archivo)
         print(f"El archivo {archivo} ya existe. Verificando duplicados...")
-        # Filtrar solo las filas que no están duplicadas en base a la comparación de columnas clave
+        
+        # Filtrar solo las filas que no están duplicadas
         df_nuevos_unicos = df_nuevos[~df_nuevos.apply(lambda row: verificar_duplicados(df_existente, row), axis=1)]
+        
         if df_nuevos_unicos.empty:
             print("No hay nuevos registros que agregar.")
             return
+
         # Combinar los datos existentes con los nuevos
         df_combinado = pd.concat([df_existente, df_nuevos_unicos], ignore_index=True)
     else:
