@@ -110,7 +110,7 @@ def aplicar_colores(wb, sheet_name, verde=False):
             color_fill = PatternFill(start_color=color_hex, end_color=color_hex, fill_type="solid")
             # Aplicar un tono verde si especificado
             if verde:
-                color_fill = PatternFill(start_color="A8E6CF", end_color="A8E6CF", fill_type="solid")
+                color_fill = PatternFill(start_color=color_hex, end_color=color_hex, fill_type="solid")
             for j in range(1, ws.max_column + 1):
                 ws.cell(row=i, column=j).fill = color_fill
 
