@@ -111,8 +111,8 @@ def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_value
         'MEXICO (SACM)', 'GUATEMALA (AEI)', 'COLOMBIA (SAYCO)', 'ACINPRO analogo', 
         'ACINPRO digital', 'ARGENTINA (SADAIC)', 'BRASIL', 'ESPAÑA SGAE'
     ]
+    colores = ['E6FFCC', 'FFE6CC', 'CCE6FF', 'FFD9E6', 'E6CCFF', 'D9FFD9', 'FFEB99', 'E0F7FA', 'FFCCEB', 'FFF2B2']
 
-    colores = ['FFFF99', 'FFCC99', '99CCFF', 'CCFFCC', 'FF99CC']  # Colores para identificar los grupos
     color_index = 0
 
     for index, row in df_colaboraciones.iterrows():
@@ -159,8 +159,10 @@ def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_value
                         'Titulo': row.get('Titulo', ''),
                         'Autor': nombres_completos_unificados,
                         '%': total_suma,
-                        'Grupo Color': colores[color_index % len(colores)]  # Asignar color al grupo
                     }
+
+                    # Finalmente, agregar "Grupo Color" al final
+                    grupo['Grupo Color'] = colores[color_index % len(colores)]  # Asignar color al grupo
 
                     # Agregar los identificadores al grupo
                     grupo.update(identificadores)
@@ -195,6 +197,12 @@ def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_value
     with pd.ExcelWriter('Agrupacion_y_Unificacion_obras.xlsx', engine='openpyxl', mode='a' if os.path.exists('Agrupacion_y_Unificacion_obras.xlsx') else 'w') as writer:
         if grupos_resultados:
             df_grupos = pd.DataFrame(grupos_resultados)
+
+            # Mover la columna "Grupo Color" al final
+            if 'Grupo Color' in df_grupos.columns:
+                columnas = [col for col in df_grupos.columns if col != 'Grupo Color'] + ['Grupo Color']
+                df_grupos = df_grupos[columnas]
+
             df_grupos.to_excel(writer, sheet_name='Unificación_Obras', index=False)
             print(f"\nLos nuevos grupos de obras han sido exportados en la hoja 'Unificación_Obras'.")
         else:
@@ -210,29 +218,51 @@ def buscar_y_sumar_por_isrc_y_lanzamiento(tree, df_colaboraciones, invalid_value
             df_no_agrupados.to_excel(writer, sheet_name='No Agrupados', index=False)
             print(f"\nLas obras no agrupadas han sido exportadas en la hoja 'No Agrupados'.")
 
+
     # Aplicar el coloreado de fondo por grupo después de haber exportado
     wb = load_workbook('Agrupacion_y_Unificacion_obras.xlsx')
     
     # Colorear "Unificación_Obras"
     ws_grupos = wb['Unificación_Obras']
-    for i in range(2, ws_grupos.max_row + 1):  # Comenzamos desde la fila 2 (sin encabezado)
-        color_hex = ws_grupos.cell(row=i, column=ws_grupos.max_column).value
-        if color_hex:
-            color_fill = PatternFill(start_color=color_hex, end_color=color_hex, fill_type="solid")
-            for j in range(1, ws_grupos.max_column):  # No colorear la columna de color
-                ws_grupos.cell(row=i, column=j).fill = color_fill
+
+    # Identificar la columna "Grupo Color" en el encabezado de "Unificación_Obras"
+    columna_color_grupo = None
+    for col in range(1, ws_grupos.max_column + 1):
+        if ws_grupos.cell(row=1, column=col).value == "Grupo Color":
+            columna_color_grupo = col
+            break
+
+    if columna_color_grupo:
+        for i in range(2, ws_grupos.max_row + 1):  # Empezar en la fila 2 para omitir encabezado
+            color_hex = ws_grupos.cell(row=i, column=columna_color_grupo).value  # Usar la columna "Grupo Color" encontrada
+            if color_hex:
+                color_fill = PatternFill(start_color=color_hex, end_color=color_hex, fill_type="solid")
+                for j in range(1, ws_grupos.max_column + 1):  # Aplicar color en todas las columnas
+                    if j != columna_color_grupo:  # No colorear la columna del color en sí
+                        ws_grupos.cell(row=i, column=j).fill = color_fill
 
     # Colorear "Agrupación_Obras"
     ws_obras = wb['Agrupación_Obras']
-    for i in range(2, ws_obras.max_row + 1):  # Comenzamos desde la fila 2 (sin encabezado)
-        color_hex = ws_obras.cell(row=i, column=ws_obras.max_column).value
-        if color_hex:
-            color_fill = PatternFill(start_color=color_hex, end_color=color_hex, fill_type="solid")
-            for j in range(1, ws_obras.max_column):  # No colorear la columna de color
-                ws_obras.cell(row=i, column=j).fill = color_fill
+
+    # Identificar la columna "Grupo Color" en el encabezado de "Agrupación_Obras"
+    columna_color_obras = None
+    for col in range(1, ws_obras.max_column + 1):
+        if ws_obras.cell(row=1, column=col).value == "Grupo Color":
+            columna_color_obras = col
+            break
+
+    if columna_color_obras:
+        for i in range(2, ws_obras.max_row + 1):
+            color_hex = ws_obras.cell(row=i, column=columna_color_obras).value
+            if color_hex:
+                color_fill = PatternFill(start_color=color_hex, end_color=color_hex, fill_type="solid")
+                for j in range(1, ws_obras.max_column + 1):
+                    if j != columna_color_obras:  # No colorear la columna del color en sí
+                        ws_obras.cell(row=i, column=j).fill = color_fill
 
     wb.save('Agrupacion_y_Unificacion_obras.xlsx')
     print("\nColores aplicados correctamente en las hojas 'Unificación_Obras' y 'Agrupación_Obras'.")
+
 
 def main(base_file=None):
     config_file = 'config.json'
