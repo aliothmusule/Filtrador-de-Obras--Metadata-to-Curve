@@ -1,6 +1,6 @@
 import pandas as pd
 
-# Definir las editoras a filtrar
+# Definir las editoras a filtrar .
 editoras = [
     "BACKSTAGE EDITORA TX",
     "MUSIC BY BACKSTAGE PUBLISHING",
