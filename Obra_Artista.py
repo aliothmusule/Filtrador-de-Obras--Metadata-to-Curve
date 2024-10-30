@@ -141,8 +141,8 @@ def main():
         sys.exit(1)
 
     columnas_a_exportar = [
-        '#', 'Artista', 'Titulo', 'Album', 'ISRC', 'UPC', 'Lanzamiento', 'Sound Recording',
-        'Sello', 'Autor', 'Apellido', '%', 'IPI', 'Publisher', 'CCLI', 'MLC', 'Harry Fox',
+        '#', 'Artista', 'Titulo', 'Album', 'ISRC', 'UPC', 'Lanzamiento','Duración', 'Sound Recording',
+        'Sello', 'Autor', 'Apellido', '%','Contrato', 'IPI', 'Publisher', 'CCLI', 'MLC', 'Harry Fox',
         'USA (BMI-ASCAP)', 'WORK ID', 'ISWC', 'MEXICO (SACM)', 'GUATEMALA (AEI)', 'COLOMBIA (SAYCO)',
         'ACINPRO analogo', 'ACINPRO digital', 'ARGENTINA (SADAIC)', 'BRASIL', 'ESPAÑA SGAE'
     ]
