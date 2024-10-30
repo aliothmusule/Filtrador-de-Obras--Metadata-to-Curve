@@ -7,6 +7,18 @@ archivo_nuevo = 'METADATA_PUBLISHING_UNIFICADO.xlsx'
 # Conjunto de ISRC inválidos
 isrc_invalidos = {"Sin Codigo", '', ' '}
 
+# Colores para los grupos
+# Colores para los grupos - Variante con tonos vibrantes y contrastantes
+colores_visibles = [
+    "#FFB3BA", "#FFDFBA", "#FFFFBA", "#BAFFC9", "#BAE1FF", "#D1BAFF", "#FFBAD2", "#BAFFD1",
+    "#FFCBA4", "#B3E5FC", "#A5D6A7", "#FFF176", "#FF8A80", "#80DEEA", "#CE93D8", "#FFAB91",
+    "#A7FFEB", "#FFEB3B", "#FFCDD2", "#E1BEE7", "#B3E5FC"
+]
+
+
+def asignar_color_grupo(grupo_id):
+    return colores_visibles[(grupo_id - 1) % len(colores_visibles)]
+
 class TreeNode:
     def __init__(self):
         self.records = []
@@ -101,13 +113,20 @@ if os.path.exists(archivo_origen):
     print(f"Total de registros en 'Grupos 100%' y 'Grupos < 100%': {total_registros_originales}")
     print(f"Total de registros resultantes en 'Unificados': {total_registros_unificados}")
 
-    # Guardar en un archivo nuevo
-    print("Guardando resultados en un archivo nuevo...")
+    # Guardar solo la hoja "Unificados" con colores aplicados
+    print("Guardando resultados en un archivo nuevo y aplicando colores...")
     with pd.ExcelWriter(archivo_nuevo, engine='xlsxwriter') as writer:
-        df_100.to_excel(writer, index=False, sheet_name='Grupos 100%')
-        df_menor_100.to_excel(writer, index=False, sheet_name='Grupos < 100%')
+        # Guardar la hoja de "Unificados" solamente
+        workbook = writer.book
         df_unificado.to_excel(writer, index=False, sheet_name='Unificados')
+        worksheet = writer.sheets['Unificados']
+        
+        # Aplicar colores por grupo en la hoja de "Unificados"
+        for row_num, grupo in enumerate(df_unificado['Grupo Contador'], start=1):
+            color = asignar_color_grupo(grupo)
+            cell_format = workbook.add_format({'bg_color': color})
+            worksheet.set_row(row_num, None, cell_format)
 
-    print(f"Archivo nuevo '{archivo_nuevo}' creado exitosamente con la hoja de 'Unificados'")
+    print(f"Archivo nuevo '{archivo_nuevo}' creado exitosamente, hoja de 'Unificados' coloreada.")
 else:
     print(f"El archivo '{archivo_origen}' no existe.")
