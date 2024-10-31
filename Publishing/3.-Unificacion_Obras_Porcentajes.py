@@ -96,7 +96,9 @@ def unificar_registros_con_arbol(tree, columnas_comparacion):
     return pd.DataFrame(registros_unificados)
 
 # Cargar y procesar las hojas 'Grupos 100%' y 'Grupos < 100%'
-columnas_comparacion = ['MLC', 'MEXICO (SACM)', 'ISWC']
+columnas_comparacion = ['MLC', 'MEXICO (SACM)', 'ISWC', 'GUATEMALA (AEI)', 'COLOMBIA (SAYCO)',
+    'ACINPRO analogo', 'ACINPRO digital', 'ARGENTINA (SADAIC)', 'COSTA RICA', 'PANAMA',
+    'EL SALVADOR', 'NICARAGUA', 'BELICE', 'HONDURAS', 'REPUBLICA DOMINICANA', 'BRASIL', 'ESPAÑA SGAE']
 columnas_clave = ['ISRC', 'Duración ']
 
 # Cargar datos y crear archivo nuevo
@@ -125,7 +127,7 @@ if os.path.exists(archivo_origen):
     total_registros_unificados = len(df_unificado)
     print(f"Total de registros en 'Unificados': {total_registros_unificados}")
 
-    print("Guardando resultados en un archivo nuevo y aplicando colores...")
+    print("PROCESANDO....Guardando resultados en un archivo nuevo y aplicando colores...")
     with pd.ExcelWriter(archivo_nuevo, engine='xlsxwriter') as writer:
         workbook = writer.book
         df_unificado.to_excel(writer, index=False, sheet_name='Unificados')
