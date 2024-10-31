@@ -28,7 +28,6 @@ class TitleTree:
 
     def insert(self, key, record, isrc_invalido):
         if isrc_invalido:
-            # Insertar como registro individual en lugar de unificar
             self.root.records.append(record)
         else:
             node = self.root
@@ -38,7 +37,6 @@ class TitleTree:
 
     def get_groups(self):
         groups = []
-        # Incluir cada registro con ISRC inválido como grupo separado
         for record in self.root.records:
             groups.append([record])
         for node in self.root.children.values():
@@ -58,28 +56,39 @@ def unificar_registros_con_arbol(tree, columnas_comparacion):
 
         grupo_unificado = grupo[0].copy()
         porcentaje_coincidencia = 0
-        
-        for registro in grupo[1:]:
-            for columna in columnas_comparacion:
-                valor_unificado = str(grupo_unificado[columna]) if pd.notna(grupo_unificado[columna]) else ""
-                valor_actual = str(registro[columna]) if pd.notna(registro[columna]) else ""
-                
-                if valor_unificado == valor_actual:
-                    porcentaje_coincidencia += 10
-                elif valor_actual:
-                    valores = valor_unificado.split(',') if valor_unificado else []
-                    valores.append(valor_actual)
-                    grupo_unificado[columna] = ','.join(valores)
 
-        # Unificar "Autor", "Apellido", "%", y "Contrato" sin eliminar duplicados
-        for columna in ['Autor', 'Apellido', '%', 'Contrato']:
-            valores_columna = []
-            for reg in grupo:
-                if pd.notna(reg[columna]):
-                    valores_columna.append(str(reg[columna]))
-            grupo_unificado[columna] = ','.join(valores_columna)
+        # Inicializar matrices para Autor, Apellido, %, y Contrato
+        matriz_autores = []
+        matriz_apellidos = []
+        matriz_porcentaje = []
+        matriz_contrato = []
 
-        grupo_unificado['Porcentaje_Coincidencia'] = porcentaje_coincidencia
+        for registro in grupo:
+            autores = str(registro['Autor']).split(',') if pd.notna(registro['Autor']) else []
+            apellidos = str(registro['Apellido']).split(',') if pd.notna(registro['Apellido']) else []
+            porcentajes = str(registro['%']).split(',') if pd.notna(registro['%']) else []
+            contratos = str(registro['Contrato']).split(',') if pd.notna(registro['Contrato']) else []
+
+            # Llenar las matrices respetando la correspondencia entre autores y apellidos
+            for i in range(len(autores)):
+                autor = autores[i].strip()
+                apellido = apellidos[i].strip() if i < len(apellidos) else ""
+                porcentaje = porcentajes[i].strip() if i < len(porcentajes) else ""
+                contrato = contratos[i].strip() if i < len(contratos) else ""
+
+                # Añadir valores a las matrices si no existen ya con la misma combinación
+                if (autor, apellido) not in zip(matriz_autores, matriz_apellidos):
+                    matriz_autores.append(autor)
+                    matriz_apellidos.append(apellido)
+                    matriz_porcentaje.append(porcentaje)
+                    matriz_contrato.append(contrato)
+
+        # Unir los valores de las matrices para la salida unificada
+        grupo_unificado['Autor'] = ','.join(matriz_autores)
+        grupo_unificado['Apellido'] = ','.join(matriz_apellidos)
+        grupo_unificado['%'] = ','.join(matriz_porcentaje)
+        grupo_unificado['Contrato'] = ','.join(matriz_contrato)
+
         registros_unificados.append(grupo_unificado)
         print(f"   Grupo con ISRC {grupo[0]['ISRC']} y Duración {grupo[0]['Duración ']} unificado con {len(grupo)} registros.")
 
@@ -87,7 +96,7 @@ def unificar_registros_con_arbol(tree, columnas_comparacion):
     return pd.DataFrame(registros_unificados)
 
 # Cargar y procesar las hojas 'Grupos 100%' y 'Grupos < 100%'
-columnas_comparacion = ['MLC', 'MEXICO (SACM)', 'ISWC', 'Autor', 'Apellido', '%', 'Contrato']
+columnas_comparacion = ['MLC', 'MEXICO (SACM)', 'ISWC']
 columnas_clave = ['ISRC', 'Duración ']
 
 # Cargar datos y crear archivo nuevo
