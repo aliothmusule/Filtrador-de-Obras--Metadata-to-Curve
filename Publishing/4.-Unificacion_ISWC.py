@@ -4,10 +4,10 @@ from datetime import datetime
 
 # Configuración del logging para un solo archivo de log
 log_filename = "(ISWC)Unificacion.log"
-logging.basicConfig(filename=log_filename, level=logging.INFO, format='%(message)s', encoding='utf-8')
+logging.basicConfig(filename=log_filename, level=logging.INFO, format='%(message)s')
 
 # Agregar un encabezado al inicio de cada ejecución
-with open(log_filename, 'a', encoding='utf-8') as log_file:
+with open(log_filename, 'a') as log_file:
     log_file.write(f"\n--- Ejecución iniciada: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ---\n")
 
 # Cargar el archivo de datos unificados
@@ -49,7 +49,7 @@ def unificar_por_iswc(df, columnas):
         registros_log.append(f"Registro unificado: {df_unificado.to_dict()}")
 
     # Escribir todos los registros de la unificación al log de una vez
-    with open(log_filename, 'a', encoding='utf-8') as log_file:
+    with open(log_filename, 'a') as log_file:
         log_file.write("\n".join(registros_log) + "\n")
     
     df_unificado = df.groupby('ISWC').agg(lambda x: ', '.join(sorted(set(str(i) for i in x if pd.notna(i)))))
