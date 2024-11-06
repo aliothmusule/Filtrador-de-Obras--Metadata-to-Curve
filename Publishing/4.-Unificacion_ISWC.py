@@ -29,7 +29,7 @@ columnas_unificar = [
     'USA (BMI-ASCAP)', 'WORK ID', 'ISWC', 'MEXICO (SACM)', 'GUATEMALA (AEI)', 'COLOMBIA (SAYCO)',
     'ACINPRO analogo', 'ACINPRO digital', 'ARGENTINA (SADAIC)', 'COSTA RICA', 'PANAMA',
     'EL SALVADOR', 'NICARAGUA', 'BELICE', 'HONDURAS', 'REPUBLICA DOMINICANA', 'BRASIL', 'ESPAÑA SGAE',
-    'ECUADOR', 'PARAGUAY', 'INDAUTOR', 'USCO', 'Año', 'FORMATO', 'Eliminado de Youtube',
+    'ECUADOR', 'PARAGUAY', 'INDAUTOR', 'USCO', 'Año', 'FORMATO', 'Eliminado de Youtube','ID IDENTIFICADOR'
     'Catálogo completo', 'REVISION', 'REVISION .1'
 ]
 

@@ -62,19 +62,21 @@ def unificar_registros_con_arbol(tree, columnas_comparacion):
         matriz_apellidos = []
         matriz_porcentaje = []
         matriz_contrato = []
+        matriz_id=[]
 
         for registro in grupo:
             autores = str(registro['Autor']).split(',') if pd.notna(registro['Autor']) else []
             apellidos = str(registro['Apellido']).split(',') if pd.notna(registro['Apellido']) else []
             porcentajes = str(registro['%']).split(',') if pd.notna(registro['%']) else []
             contratos = str(registro['Contrato']).split(',') if pd.notna(registro['Contrato']) else []
-
+            identificadores = str(registro['ID IDENTIFICADOR']).split(',') if pd.notna(registro['ID IDENTIFICADOR']) else []
             # Llenar las matrices respetando la correspondencia entre autores y apellidos
             for i in range(len(autores)):
                 autor = autores[i].strip()
                 apellido = apellidos[i].strip() if i < len(apellidos) else ""
                 porcentaje = porcentajes[i].strip() if i < len(porcentajes) else ""
-                contrato = contratos[i].strip() if i < len(contratos) else ""
+                contrato = contratos[i].strip() if i < len(contratos) else ""                
+                identificador = identificadores[i].strip() if i < len(identificadores) else ""
 
                 # Añadir valores a las matrices si no existen ya con la misma combinación
                 if (autor, apellido) not in zip(matriz_autores, matriz_apellidos):
@@ -82,12 +84,14 @@ def unificar_registros_con_arbol(tree, columnas_comparacion):
                     matriz_apellidos.append(apellido)
                     matriz_porcentaje.append(porcentaje)
                     matriz_contrato.append(contrato)
+                    matriz_id.append(identificador)
 
         # Unir los valores de las matrices para la salida unificada
         grupo_unificado['Autor'] = ','.join(matriz_autores)
         grupo_unificado['Apellido'] = ','.join(matriz_apellidos)
         grupo_unificado['%'] = ','.join(matriz_porcentaje)
         grupo_unificado['Contrato'] = ','.join(matriz_contrato)
+        grupo_unificado['ID IDENTIFICADOR'] = ','.join(matriz_id)
 
         registros_unificados.append(grupo_unificado)
         print(f"   Grupo con ISRC {grupo[0]['ISRC']} y Duración {grupo[0]['Duración ']} unificado con {len(grupo)} registros.")
@@ -98,7 +102,7 @@ def unificar_registros_con_arbol(tree, columnas_comparacion):
 # Cargar y procesar las hojas 'Grupos 100%' y 'Grupos < 100%'
 columnas_comparacion = ['MLC', 'MEXICO (SACM)', 'ISWC', 'GUATEMALA (AEI)', 'COLOMBIA (SAYCO)',
     'ACINPRO analogo', 'ACINPRO digital', 'ARGENTINA (SADAIC)', 'COSTA RICA', 'PANAMA',
-    'EL SALVADOR', 'NICARAGUA', 'BELICE', 'HONDURAS', 'REPUBLICA DOMINICANA', 'BRASIL', 'ESPAÑA SGAE']
+    'EL SALVADOR', 'NICARAGUA', 'BELICE', 'HONDURAS', 'REPUBLICA DOMINICANA', 'BRASIL', 'ESPAÑA SGAE','ID IDENTIFICADOR']
 columnas_clave = ['ISRC', 'Duración ']
 
 # Cargar datos y crear archivo nuevo

@@ -19,8 +19,10 @@ def calcular_suma_contrato(contrato):
         if contrato_str.strip() != "":
             try:
                 # Filtrar valores vacíos antes de la conversión a float
-                valores = [float(valor) for valor in contrato_str.split(',') if valor.strip()]
-                return sum(valores)
+                valores = [float(valor.strip()) for valor in contrato_str.split(',') if valor.strip()]
+                resultado_suma = sum(valores)
+                print(f"Valores procesados: {valores} -> Suma: {resultado_suma}")  # Agregar una línea de depuración
+                return resultado_suma
             except ValueError:
                 return 0  # Si hay un valor no numérico, retornar 0
     return 0
