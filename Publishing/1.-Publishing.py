@@ -105,16 +105,15 @@ print("Insertando registros en el árbol...")
 tree = TitleTree()
 for _, row in metadata_publishing_df.iterrows():
     key = tuple(row[col] for col in columnas_agrupacion)  # Clave de agrupación
-    tree.insert(key, row)
-
-# Calcular el porcentaje de contrato y asignar Grupo Contador a cada grupo
+    tree.insert(key, row)# Calcular el porcentaje de contrato, redondeado a 2 decimales, y asignar Grupo Contador a cada grupo
 grupo_id = 1
 for group in tree.get_groups():
     total_porcentaje = sum(float(record['%']) for record in group if pd.notna(record['%']))
     for record in group:
-        record['Contrato'] = (float(record['%']) / total_porcentaje) * 100 if total_porcentaje else 0
+        record['Contrato'] = round((float(record['%']) / total_porcentaje) * 100, 2) if total_porcentaje else 0
         record['Grupo Contador'] = grupo_id
     grupo_id += 1
+
 
 # Convertir los datos de nuevo a DataFrame con el contrato y contador de grupo asignado
 metadata_publishing_df = pd.DataFrame([record for group in tree.get_groups() for record in group])

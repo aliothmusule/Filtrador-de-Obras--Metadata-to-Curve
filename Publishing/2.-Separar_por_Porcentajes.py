@@ -75,31 +75,16 @@ for _, row in metadata_publishing_df.iterrows():
     key = tuple(row[col] for col in columnas_agrupacion)
     tree.insert(key, row)
 
-import math  # Importar la biblioteca math para verificar NaN
-
-import math  # Importar la biblioteca math para verificar NaN
-
 # Calcular el porcentaje de contrato, redondeado a 2 decimales, y asignar Grupo Contador a cada grupo
 grupo_id = 1
 for group in tree.get_groups():
     total_porcentaje = sum(float(record['%']) for record in group if pd.notna(record['%']))
-    for index, record in enumerate(group):
-        # Calcular el valor redondeado a 2 decimales, si el total es mayor a 0
-        contrato_redondeado = round((float(record['%']) / total_porcentaje) * 100, 2) if total_porcentaje else 0
-        
-        # Verificar si contrato_redondeado es NaN antes de continuar
-        if math.isnan(contrato_redondeado):
-            print(f"Valor NaN encontrado en la fila {index + 1} del grupo {grupo_id}: {record}")
-            record['Contrato'] = 0  # O el valor que desees asignar en caso de NaN
-        else:
-            # Verificar si el valor redondeado tiene un decimal exacto ".0"
-            if contrato_redondeado == int(contrato_redondeado):
-                record['Contrato'] = int(contrato_redondeado)  # Mostrar como entero si es, por ejemplo, 5.0
-            else:
-                record['Contrato'] = contrato_redondeado  # Mostrar tal cual si es, por ejemplo, 5.01, 5.10, 5.20
-        
+    for record in group:
+        record['Contrato'] = round((float(record['%']) / total_porcentaje) * 100, 2) if total_porcentaje else 0
         record['Grupo Contador'] = grupo_id
     grupo_id += 1
+
+
 
 # Crear DataFrame y clasificar por porcentaje total de contrato
 metadata_publishing_df = pd.DataFrame([record for group in tree.get_groups() for record in group])

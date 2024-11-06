@@ -5,7 +5,7 @@ import os
 archivo_nuevo = 'METADATA_PUBLISHING_UNIFICADO.xlsx'
 
 # Conjunto de ISRC inválidos
-isrc_invalidos = {"Sin Codigo", '', ' ','SIN Codigo','SIN ISWC','Sin ISWC','Sin ISWC '}
+isrc_invalidos = {"Sin Codigo", '', ' ','SIN Codigo','Sín Código ','Sín Código','SIN ISWC','Sin ISWC','Sin ISWC '}
 
 # Colores para los grupos
 colores_visibles = [
