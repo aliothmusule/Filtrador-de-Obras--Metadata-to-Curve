@@ -2,7 +2,7 @@ import pandas as pd
 
 # Cargar el archivo de Excel
 archivo_origen = 'METADATA_PUBLISHING_SEPARADO.xlsx'
-archivo_exportado = 'Registros_no_validos.xlsx'
+archivo_exportado = 'METADATA Registros_no_validos.xlsx'
 
 # Cargar la hoja "Grupos < 100%" en un DataFrame
 df = pd.read_excel(archivo_origen, sheet_name='Grupos < 100%')

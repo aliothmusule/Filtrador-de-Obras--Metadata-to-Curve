@@ -65,7 +65,7 @@ metadata_df['Publisher'] = metadata_df['Publisher'].astype(str).str.strip()
 # Filtrar por editoras
 metadata_publishing_df = metadata_df[metadata_df['Publisher'].isin(editoras)].copy()
 
-columnas_agrupacion = ['Artista', 'Titulo', 'Album', 'ISRC', 'Lanzamiento']
+columnas_agrupacion = ['Artist', 'Title', 'Album', 'ISRC', 'Release Date']
 metadata_publishing_df[columnas_agrupacion] = metadata_publishing_df[columnas_agrupacion].astype(str)
 metadata_publishing_df['%'] = pd.to_numeric(metadata_publishing_df['%'], errors='coerce')
 

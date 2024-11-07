@@ -65,8 +65,8 @@ def unificar_registros_con_arbol(tree, columnas_comparacion):
         matriz_id=[]
 
         for registro in grupo:
-            autores = str(registro['Autor']).split(',') if pd.notna(registro['Autor']) else []
-            apellidos = str(registro['Apellido']).split(',') if pd.notna(registro['Apellido']) else []
+            autores = str(registro['Author']).split(',') if pd.notna(registro['Author']) else []
+            apellidos = str(registro['Last Name']).split(',') if pd.notna(registro['Last Name']) else []
             porcentajes = str(registro['%']).split(',') if pd.notna(registro['%']) else []
             contratos = str(registro['Contrato']).split(',') if pd.notna(registro['Contrato']) else []
             identificadores = str(registro['ID IDENTIFICADOR']).split(',') if pd.notna(registro['ID IDENTIFICADOR']) else []
@@ -77,7 +77,7 @@ def unificar_registros_con_arbol(tree, columnas_comparacion):
                 porcentaje = porcentajes[i].strip() if i < len(porcentajes) else ""
                 contrato = contratos[i].strip() if i < len(contratos) else ""                
                 identificador = identificadores[i].strip() if i < len(identificadores) else ""
-
+                
                 # Añadir valores a las matrices si no existen ya con la misma combinación
                 if (autor, apellido) not in zip(matriz_autores, matriz_apellidos):
                     matriz_autores.append(autor)
@@ -85,16 +85,16 @@ def unificar_registros_con_arbol(tree, columnas_comparacion):
                     matriz_porcentaje.append(porcentaje)
                     matriz_contrato.append(contrato)
                     matriz_id.append(identificador)
-
+                
         # Unir los valores de las matrices para la salida unificada
-        grupo_unificado['Autor'] = ','.join(matriz_autores)
-        grupo_unificado['Apellido'] = ','.join(matriz_apellidos)
+        grupo_unificado['Author'] = ','.join(matriz_autores)
+        grupo_unificado['Last Name'] = ','.join(matriz_apellidos)
         grupo_unificado['%'] = ','.join(matriz_porcentaje)
         grupo_unificado['Contrato'] = ','.join(matriz_contrato)
         grupo_unificado['ID IDENTIFICADOR'] = ','.join(matriz_id)
 
         registros_unificados.append(grupo_unificado)
-        print(f"   Grupo con ISRC {grupo[0]['ISRC']} y Duración {grupo[0]['Duración ']} unificado con {len(grupo)} registros.")
+        print(f"   Grupo con ISRC {grupo[0]['ISRC']} y Duración {grupo[0]['Duration']} unificado con {len(grupo)} registros.")
 
     print("Unificación completa en el árbol.")
     return pd.DataFrame(registros_unificados)
@@ -103,7 +103,7 @@ def unificar_registros_con_arbol(tree, columnas_comparacion):
 columnas_comparacion = ['MLC', 'MEXICO (SACM)', 'ISWC', 'GUATEMALA (AEI)', 'COLOMBIA (SAYCO)',
     'ACINPRO analogo', 'ACINPRO digital', 'ARGENTINA (SADAIC)', 'COSTA RICA', 'PANAMA',
     'EL SALVADOR', 'NICARAGUA', 'BELICE', 'HONDURAS', 'REPUBLICA DOMINICANA', 'BRASIL', 'ESPAÑA SGAE','ID IDENTIFICADOR']
-columnas_clave = ['ISRC', 'Duración ']
+columnas_clave = ['ISRC', 'Duration']
 
 # Cargar datos y crear archivo nuevo
 archivo_origen = 'METADATA_PUBLISHING_SEPARADO.xlsx'
@@ -120,7 +120,7 @@ if os.path.exists(archivo_origen):
     tree = TitleTree()
     for _, row in pd.concat([df_100, df_menor_100], ignore_index=True).iterrows():
         isrc = row['ISRC']
-        duracion = row['Duración ']
+        duracion = row['Duration']
         isrc_invalido = isrc in isrc_invalidos
         key = (isrc, duracion) if not isrc_invalido else None
         tree.insert(key, row, isrc_invalido)

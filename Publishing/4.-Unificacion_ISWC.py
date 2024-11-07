@@ -22,14 +22,14 @@ df = pd.read_excel(archivo_origen, sheet_name='Unificados')
 
 # Columnas para unificar, basadas en la imagen proporcionada
 columnas_unificar = [
-    '#', 'Artista', 'Titulo', 'Album', 'Género', 'ISRC', 'UPC', 'Lanzamiento', 'Duración ',
+    '#', 'Artist', 'Title', 'Album', 'Género', 'ISRC', 'UPC', 'Release Date', 'Duration',
     'Sound Recording', 'Sello', 'Producer', 'Engineer', 'Master Engineer', 'Mixter', 'Arranger',
-    'Autor', 'Apellido', '%', 'Contrato', 'IPI', 'PRO', 'Publisher', 'IPI.1', 'PRO.1', '%.1',
+    'Author', 'Last Name', '%', 'Contrato', 'IPI', 'PRO', 'Publisher', 'IPI.1', 'PRO.1', '%.1',
     'Mech', 'Perf', 'Sync', 'ADQ. PUBLISHING', 'CCLI', 'MLC', 'M Reports', 'Harry Fox', 'Sound Ex',
     'USA (BMI-ASCAP)', 'WORK ID', 'ISWC', 'MEXICO (SACM)', 'GUATEMALA (AEI)', 'COLOMBIA (SAYCO)',
     'ACINPRO analogo', 'ACINPRO digital', 'ARGENTINA (SADAIC)', 'COSTA RICA', 'PANAMA',
     'EL SALVADOR', 'NICARAGUA', 'BELICE', 'HONDURAS', 'REPUBLICA DOMINICANA', 'BRASIL', 'ESPAÑA SGAE',
-    'ECUADOR', 'PARAGUAY', 'INDAUTOR', 'USCO', 'Año', 'FORMATO', 'Eliminado de Youtube','ID IDENTIFICADOR'
+    'ECUADOR', 'PARAGUAY', 'INDAUTOR', 'USCO', 'Año', 'FORMATO', 'Eliminado de Youtube','ID IDENTIFICADOR','FORMATO',
     'Catálogo completo', 'REVISION', 'REVISION .1'
 ]
 
