@@ -98,7 +98,7 @@ def main():
                     sheet_name = sheet_names[sheet_selection - 1]
                 except ValueError:
                     sheet_name = 0
-            header_row_input = input("Ingrese el número de la fila que contiene los encabezados (por defecto 2): ")
+            header_row_input = input("Ingrese el número de la fila que contiene los encabezados (por defecto 2): ")     
             header_row = int(header_row_input) - 1 if header_row_input else 1
         except Exception as e:
             print("Error al obtener las hojas del archivo Excel:", e)

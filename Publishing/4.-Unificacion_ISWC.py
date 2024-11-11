@@ -21,6 +21,7 @@ iswc_invalidos = {"", " ", None, "Sin Codigo", '0', '--', 'Pendiente', 'Pendient
 df = pd.read_excel(archivo_origen, sheet_name='Unificados')
 
 # Columnas para unificar, basadas en la imagen proporcionada
+'''
 columnas_unificar = [
     '#', 'Artist', 'Title', 'Album', 'Género', 'ISRC', 'UPC', 'Release Date', 'Duration',
     'Sound Recording', 'Sello', 'Producer', 'Engineer', 'Master Engineer', 'Mixter', 'Arranger',
@@ -31,7 +32,22 @@ columnas_unificar = [
     'EL SALVADOR', 'NICARAGUA', 'BELICE', 'HONDURAS', 'REPUBLICA DOMINICANA', 'BRASIL', 'ESPAÑA SGAE',
     'ECUADOR', 'PARAGUAY', 'INDAUTOR', 'USCO', 'Año', 'FORMATO', 'Eliminado de Youtube','ID IDENTIFICADOR','FORMATO',
     'Catálogo completo', 'REVISION', 'REVISION .1'
+]'''
+columnas_unificar = [
+    '#', 'Artist', 'Title', 'Album', 'Genres', 'ISRC', 'UPC', 'Release Date', 'Duration',
+    'Sound Recording', 'Label', 'Producer', 'Engineer', 'Master Engineer', 'Mixer', 'Arranger',
+    'Author', 'Last Name', '%','Contrato' 'IPI', 'PRO', 'Publisher', 'IPI.1', 'PRO.1', '%.1',
+    'Mech', 'Perf', 'Sync', 'ADQ. publishing', 'CCLI', 'MLC', 'M Reports', 'Harry Fox', 'Sound Ex',
+    'USA (BMI-ASCAP)', 'WORK ID', 'ISWC', 'Mexico (SACM)', 'GUATEMALA (AEI)', 'COLOMBIA (SAYCO)',
+    'ACINPRO analogo', 'ACINPRO digital', 'ARGENTINA (SADAIC)', 'COSTA RICA', 'PANAMA',
+    'EL SALVADOR', 'NICARAGUA', 'BELICE', 'HONDURAS', 'REPUBLICA DOMINICANA', 'BRASIL', 'ESPAÑA SGAE',
+    'ECUADOR', 'PARAGUAY', 'INDAUTOR', 'USCO', 'Year', 'ID IDENTIFICADOR', 'FORMATO',
+    'Catálogo completo', 'REVISION', 'REVISION .1'
 ]
+
+
+
+
 
 # Separar los registros con ISWC válido e inválido
 df_invalidos = df[df['ISWC'].isin(iswc_invalidos)].copy()
