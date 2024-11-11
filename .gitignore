@@ -2,3 +2,5 @@
 *.xlsx
 Publishing/(ISWC)Unificacion.log
 Publishing/comparador_excel.log
+Publishing/resultado.json
+Publishing/historial.log

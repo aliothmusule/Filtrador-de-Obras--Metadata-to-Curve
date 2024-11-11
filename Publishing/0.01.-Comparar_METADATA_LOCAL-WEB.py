@@ -149,27 +149,25 @@ def comparar_datos(df_local, df_remoto):
 
     return diferencias, nuevos_registros, registros_eliminados
 
-# Función para guardar los resultados en un archivo JSON sin sobrescribir
+# Función para guardar los resultados actuales en 'resultado_actual.json' y el historial en 'historial.log'
 def guardar_resultados(diferencias, nuevos_registros, registros_eliminados):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     resultado = {
         "timestamp": timestamp,
         "diferencias": diferencias,
         "nuevos_registros": nuevos_registros,
-        "registros_eliminados": registros_eliminados  # Agregar eliminados
+        "registros_eliminados": registros_eliminados
     }
 
-    try:
-        with open('resultado.json', 'r+', encoding='utf-8') as resultado_file:
-            data = json.load(resultado_file)
-            data.append(resultado)
-            resultado_file.seek(0)
-            json.dump(data, resultado_file, ensure_ascii=False, indent=4)
-        print("[INFO] Resultados agregados en 'resultado.json'.")
-    except FileNotFoundError:
-        with open('resultado.json', 'w', encoding='utf-8') as resultado_file:
-            json.dump([resultado], resultado_file, ensure_ascii=False, indent=4)
-        print("[INFO] Archivo 'resultado.json' creado y resultados guardados.")
+    # Guardar el resultado actual en 'resultado_actual.json'
+    with open('resultado_actual.json', 'w', encoding='utf-8') as resultado_file:
+        json.dump(resultado, resultado_file, ensure_ascii=False, indent=4)
+    print("[INFO] Resultado actual guardado en 'resultado_actual.json'.")
+
+    # Agregar el registro al historial en 'historial.log'
+    with open('historial.log', 'a', encoding='utf-8') as historial_file:
+        historial_file.write(json.dumps(resultado, ensure_ascii=False, indent=4) + '\n')
+    print("[INFO] Registro agregado al historial en 'historial.log'.")
 
 # Función principal
 def main():
@@ -204,6 +202,7 @@ def main():
     print(f"Total de diferencias: {total_diferencias}")
     print(f"Total de nuevos registros: {total_nuevos}")
     print(f"Total de registros eliminados: {total_eliminados}")
+    print(f"Verifique los datos actuales en resultado_actual.json")
 
 if __name__ == "__main__":
     main()
