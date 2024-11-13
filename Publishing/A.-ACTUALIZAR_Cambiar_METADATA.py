@@ -67,7 +67,7 @@ def descargar_y_guardar_excel(url, nombre_archivo_descargado):
 
 # Función principal
 def main():
-    print("[INFO] Iniciando el proceso...")
+    print("[INFO] Iniciando el proceso... actualizando METADATA CENTRAL.xlsx")
     config = cargar_configuracion()
 
     archivo_remoto_url = config.get("archivo_remoto")

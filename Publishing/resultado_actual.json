@@ -1,0 +1,28 @@
+{
+    "timestamp": "2024-11-11 13:54:16",
+    "diferencias": [
+        {
+            "ID IDENTIFICADOR": "2500fcc0b0763db42c0208931abc",
+            "Title": "Ven Otra Vezzz",
+            "diferencias": {
+                "Title": {
+                    "local": "Ven Otra Vezz",
+                    "remoto": "Ven Otra Vezzz"
+                }
+            }
+        },
+        {
+            "ID IDENTIFICADOR": "eab7a97a16e78b21f91238faf5d1c77a",
+            "Title": "mi primer amor",
+            "diferencias": {
+                "Title": "mi primer amor",
+                "Sound Recording": {
+                    "local": "BackStage",
+                    "remoto": "Takedown 11/11/24"
+                }
+            }
+        }
+    ],
+    "nuevos_registros": [],
+    "registros_eliminados": []
+}
