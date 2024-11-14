@@ -1,24 +1,202 @@
 {
-    "timestamp": "2024-11-11 13:54:16",
+    "timestamp": "2024-11-14 10:42:18",
     "diferencias": [
         {
-            "ID IDENTIFICADOR": "2500fcc0b0763db42c0208931abc",
-            "Title": "Ven Otra Vezzz",
+            "ID IDENTIFICADOR": "33146348ecd37b9e30e3cdb260a68a8a",
+            "Title": "Corazón Pesebre",
             "diferencias": {
-                "Title": {
-                    "local": "Ven Otra Vezz",
-                    "remoto": "Ven Otra Vezzz"
+                "Title": "Corazón Pesebre",
+                "MLC": {
+                    "local": "",
+                    "remoto": "CA5V3X"
+                },
+                "USA (BMI-ASCAP)": {
+                    "local": "",
+                    "remoto": "ASCAP"
+                },
+                "WORK ID": {
+                    "local": "",
+                    "remoto": "898133672"
+                },
+                "ISWC": {
+                    "local": "",
+                    "remoto": "T0378279469"
+                },
+                "MEXICO (SACM)": {
+                    "local": "",
+                    "remoto": "S88882025"
                 }
             }
         },
         {
-            "ID IDENTIFICADOR": "eab7a97a16e78b21f91238faf5d1c77a",
-            "Title": "mi primer amor",
+            "ID IDENTIFICADOR": "4edbb3792048574eb124301f59010c60",
+            "Title": "Causas Perdidas (feat. Ulises Eyherabide)",
             "diferencias": {
-                "Title": "mi primer amor",
-                "Sound Recording": {
-                    "local": "BackStage",
-                    "remoto": "Takedown 11/11/24"
+                "Title": "Causas Perdidas (feat. Ulises Eyherabide)",
+                "USA (BMI-ASCAP)": {
+                    "local": "",
+                    "remoto": "BMI"
+                },
+                "ISWC": {
+                    "local": "",
+                    "remoto": "T3223155571"
+                },
+                "GUATEMALA (AEI)": {
+                    "local": "",
+                    "remoto": "5324456"
+                }
+            }
+        },
+        {
+            "ID IDENTIFICADOR": "6f9f6baf073ccd2890f3efd3097ebbf3",
+            "Title": "La Cruz",
+            "diferencias": {
+                "Title": "La Cruz",
+                "ISWC": {
+                    "local": "",
+                    "remoto": "T3061340447"
+                }
+            }
+        },
+        {
+            "ID IDENTIFICADOR": "732ea5f49d97c93658e75f0b69e61fcf",
+            "Title": "Indudablemente",
+            "diferencias": {
+                "Title": "Indudablemente",
+                "MLC": {
+                    "local": "",
+                    "remoto": "IV9YC6"
+                },
+                "ISWC": {
+                    "local": "",
+                    "remoto": "T0375898319"
+                }
+            }
+        },
+        {
+            "ID IDENTIFICADOR": "96e355ebc74a8146c73a41c0e3a6599e",
+            "Title": "Causas Perdidas (feat. Ulises Eyherabide)",
+            "diferencias": {
+                "Title": "Causas Perdidas (feat. Ulises Eyherabide)",
+                "ISWC": {
+                    "local": "",
+                    "remoto": "T3223155571"
+                }
+            }
+        },
+        {
+            "ID IDENTIFICADOR": "9da6a889cea51e5853d1c7fc5b319be9",
+            "Title": "No Me Dejarás (feat. Amara Rodes)",
+            "diferencias": {
+                "Title": "No Me Dejarás (feat. Amara Rodes)",
+                "MLC": {
+                    "local": "SIN REGISTRO",
+                    "remoto": "NH3NZL"
+                },
+                "MEXICO (SACM)": {
+                    "local": "Etapa de Revisión en SACM",
+                    "remoto": "425537166"
+                },
+                "GUATEMALA (AEI)": {
+                    "local": "",
+                    "remoto": "5324426"
+                }
+            }
+        },
+        {
+            "ID IDENTIFICADOR": "acfd6a91b9d5b31dc75f0535ec708376",
+            "Title": "Indudablemente",
+            "diferencias": {
+                "Title": "Indudablemente",
+                "MLC": {
+                    "local": "",
+                    "remoto": "IV9YC6"
+                },
+                "ISWC": {
+                    "local": "",
+                    "remoto": "T0375898319"
+                }
+            }
+        },
+        {
+            "ID IDENTIFICADOR": "c7b4ca05efe59fe16a1562f36973795f",
+            "Title": "Día D (feat. La Feria)",
+            "diferencias": {
+                "Title": "Día D (feat. La Feria)",
+                "USA (BMI-ASCAP)": {
+                    "local": "",
+                    "remoto": "BMI"
+                },
+                "WORK ID": {
+                    "local": "SUBMITTED",
+                    "remoto": "64389943"
+                }
+            }
+        },
+        {
+            "ID IDENTIFICADOR": "ca2c33a70fcefc87d1277d6d7bdb2fba",
+            "Title": "No Me Dejarás (feat. Amara Rodes)",
+            "diferencias": {
+                "Title": "No Me Dejarás (feat. Amara Rodes)",
+                "MLC": {
+                    "local": "NC4JID",
+                    "remoto": "NH3NZL"
+                },
+                "USA (BMI-ASCAP)": {
+                    "local": "",
+                    "remoto": "BMI"
+                }
+            }
+        },
+        {
+            "ID IDENTIFICADOR": "d74118bf99d316cc7562a00035df7240",
+            "Title": "Sobreviviente",
+            "diferencias": {
+                "Title": "Sobreviviente",
+                "MLC": {
+                    "local": "Pendiente",
+                    "remoto": "SB7JI8"
+                }
+            }
+        },
+        {
+            "ID IDENTIFICADOR": "d8f12b7dc0b87e28e06e3bd94134e25c",
+            "Title": "Tus Pasos",
+            "diferencias": {
+                "Title": "Tus Pasos",
+                "MLC": {
+                    "local": "ND2IRA ND2IQ5",
+                    "remoto": "TC56FL"
+                },
+                "MEXICO (SACM)": {
+                    "local": "",
+                    "remoto": "S88999880"
+                },
+                "GUATEMALA (AEI)": {
+                    "local": "",
+                    "remoto": "5107281"
+                }
+            }
+        },
+        {
+            "ID IDENTIFICADOR": "db646e77abc15e9f3e0b6e45723cfb9d",
+            "Title": "Tus Pasos",
+            "diferencias": {
+                "Title": "Tus Pasos",
+                "MLC": {
+                    "local": "",
+                    "remoto": "TC56FL"
+                }
+            }
+        },
+        {
+            "ID IDENTIFICADOR": "e32e94b34812b3082ac70eb7c30e3929",
+            "Title": "Corazón Pesebre",
+            "diferencias": {
+                "Title": "Corazón Pesebre",
+                "ISWC": {
+                    "local": "",
+                    "remoto": "T0378279469"
                 }
             }
         }

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISRC Search with Cache and URL Management</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="flex flex-col items-center p-5 space-y-8 bg-gray-100">
+
+<h1 class="text-2xl font-bold text-gray-800">ISRC Search and Data Load Tool</h1>
+
+<div class="container mx-auto flex flex-wrap justify-between space-y-5 space-x-0 md:space-x- md:space-y-0 w-full max-w-7xl">
+    <!-- Sección de carga de datos y búsqueda -->
+    <div class="w-full md:w-[48%] bg-white p-5 rounded-lg shadow-lg border border-gray-300 h-[550px] overflow-y-auto">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">1. Cargar Datos y Búsqueda</h2>
+        
+        <div class="space-y-4">
+            <label for="apiUrl" class="font-medium text-gray-600 block">URL de la API:</label>
+            <input type="text" id="apiUrl" placeholder="https://api.ptl.themlc.com/api/dsp-recording/matched/C5190N" required class="w-full p-2 border border-gray-300 rounded-md">
+            <div class="flex space-x-4">
+                <button onclick="openSaveUrlPopup()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Guardar URL</button>
+                <button onclick="openLoadUrlPopup()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Cargar URL Guardada</button>
+            </div>
+        </div>
+
+        <div class="mt-4 space-y-4">
+            <div class="flex items-center space-x-4">
+                <label for="startPage" class="font-medium text-gray-600">Desde página:</label>
+                <input type="number" id="startPage" min="1" value="1" class="w-20 p-2 border border-gray-300 rounded-md">
+                <label for="endPage" class="font-medium text-gray-600">Hasta página:</label>
+                <input type="number" id="endPage" min="1" value="10" class="w-20 p-2 border border-gray-300 rounded-md">
+            </div>
+            <div class="flex space-x-4">
+                <button onclick="fetchData()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Cargar Datos</button>
+                <button onclick="clearCache()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Eliminar Caché</button>
+            </div>
+        </div>
+        
+        <button onclick="downloadJsonData()" id="downloadButton" disabled class="bg-green-500 text-white px-4 py-2 mt-4 rounded hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed">Descargar JSON</button>
+        <div id="loadStatus" class="result text-green-600 font-medium mt-4"></div>
+
+        <h2 class="text-lg font-semibold text-gray-700 mt-8">2. Buscar ISRC</h2>
+        <textarea id="isrcList" placeholder="Pegue los ISRCs aquí, separados por saltos de línea" class="w-full h-24 p-2 border border-gray-300 rounded-md mt-2"></textarea>
+        <button onclick="searchISRC()" id="searchButton" disabled class="bg-green-500 text-white px-4 py-2 mt-2 rounded hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed">Buscar ISRCs</button>
+        <div id="searchStatus" class="result text-green-600 font-medium mt-4"></div>
+    </div>
+
+    <!-- Sección de resultados -->
+    <div class="w-full md:w-[48%] bg-white p-5 rounded-lg shadow-lg border border-gray-300 h-[550px] overflow-y-auto">
+        <h2 class="text-lg font-semibold text-gray-700 mb-4">Resultados de Búsqueda</h2>
+        <div id="results"></div>
+    </div>
+</div>
+
+<div class="container mx-auto w-full max-w-5xl mt-8">
+    <div class="w-full bg-white p-5 rounded-lg shadow-lg border border-gray-300 h-[550px]">
+        <iframe src="https://portal.themlc.com/search#work" scrolling="auto" frameborder="0" height="100%" width="100%" class="rounded-lg"></iframe>
+    </div>
+</div>
+<!-- Sección de Iframe en la parte inferior -->
+<div class="container mx-auto w-full max-w-5xl mt-8">
+    <div class="w-full bg-white p-5 rounded-lg shadow-lg border border-gray-300 h-[550px]">
+        <iframe src="https://socios.sacm.org.mx/repertorio" scrolling="auto" frameborder="0" height="100%" width="100%" class="rounded-lg"></iframe>
+    </div>
+</div>
+
+
+<!-- Ventana de superposición para la interfaz de guardado y carga -->
+<div id="overlay" class="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 hidden"></div>
+
+<!-- Ventana emergente para guardar URL -->
+<div id="saveUrlPopup" class="popup hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-5 rounded-lg shadow-lg w-90 z-10">
+    <span class="popup-close absolute top-2 right-3 text-gray-500 cursor-pointer" onclick="closePopup('saveUrlPopup')">X</span>
+    <h3 class="text-lg font-semibold mb-4">Guardar URL</h3>
+    <label for="urlName" class="font-medium text-gray-600">Nombre:</label>
+    <input type="text" id="urlName" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+    <div class="space-y-2">
+        <label for="saveStartPage" class="font-medium text-gray-600">Desde página:</label>
+        <input type="number" id="saveStartPage" min="1" value="1" class="w-20 p-2 border border-gray-300 rounded-md">
+        <label for="saveEndPage" class="font-medium text-gray-600">Hasta página:</label>
+        <input type="number" id="saveEndPage" min="1" value="10" class="w-20 p-2 border border-gray-300 rounded-md">
+    </div>
+    <button onclick="saveUrl()" class="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 w-full">Guardar</button>
+</div>
+
+<!-- Ventana emergente para cargar URL -->
+<div id="loadUrlPopup" class="popup hidden fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-5 rounded-lg shadow-lg w-90 z-10">
+    <span class="popup-close absolute top-2 right-3 text-gray-500 cursor-pointer" onclick="closePopup('loadUrlPopup')">X</span>
+    <h3 class="text-lg font-semibold mb-4">Cargar URL Guardada</h3>
+    <div id="savedUrlsList" class="space-y-2"></div>
+</div>
+
+<style>
+    /* CSS para la transición de los detalles */
+    .details-content {
+        transition: max-height 0.5s ease-out, padding 0.3s ease-out;
+    }
+</style>
+</body>
+
+<script>
+    let jsonData = [];  // Variable global para almacenar todos los datos cargados
+
+    // Cargar datos desde el caché al iniciar, si están disponibles
+    window.onload = function() {
+        if (localStorage.getItem("jsonDataCache")) {
+            jsonData = JSON.parse(localStorage.getItem("jsonDataCache"));
+            document.getElementById("loadStatus").innerHTML = "<span class='text-green-600 font-medium'>Datos cargados desde el caché.</span>";
+            document.getElementById("searchButton").disabled = false;
+            document.getElementById("downloadButton").disabled = false;
+        }
+    };
+
+    // Función para limpiar el caché de datos
+    function clearCache() {
+        localStorage.removeItem("jsonDataCache");
+        jsonData = [];
+        document.getElementById("loadStatus").innerHTML = "<span class='text-red-600 font-medium'>Caché eliminado.</span>";
+        document.getElementById("searchButton").disabled = true;
+        document.getElementById("downloadButton").disabled = true;
+    }
+
+    // Función para abrir la ventana emergente para guardar la URL
+    function openSaveUrlPopup() {
+        const apiUrl = document.getElementById("apiUrl").value;
+        const defaultName = apiUrl.split("matched/")[1].split("?")[0];
+        document.getElementById("urlName").value = defaultName;
+        document.getElementById("saveStartPage").value = document.getElementById("startPage").value;
+        document.getElementById("saveEndPage").value = document.getElementById("endPage").value;
+        showPopup("saveUrlPopup");
+    }
+
+    // Función para abrir la ventana emergente para cargar URLs guardadas
+    function openLoadUrlPopup() {
+        const savedUrls = JSON.parse(localStorage.getItem("savedUrls") || "[]");
+        const savedUrlsList = document.getElementById("savedUrlsList");
+        savedUrlsList.innerHTML = savedUrls.map((urlData, index) => `
+            <div class="mb-4">
+                <strong>${urlData.name}</strong> - ${urlData.date}<br>URL: ${urlData.url}<br>Rango de páginas: ${urlData.startPage} a ${urlData.endPage}
+                <div>
+                <button onclick="loadUrl('${urlData.url}', ${urlData.startPage}, ${urlData.endPage})" class="bg-blue-500 text-white px-4 py-1 rounded mt-2 hover:bg-blue-600">Cargar URL</button>
+                <button onclick="deleteUrl(${index})" class="bg-red-500 text-white px-4 py-1 rounded mt-2 hover:bg-red-600">Eliminar</button>
+            </div></div>
+            <hr>
+        `).join("");
+        showPopup("loadUrlPopup");
+    }
+
+    // Función para cargar una URL guardada en el campo de entrada principal y el rango de páginas
+    function loadUrl(url, startPage, endPage) {
+        document.getElementById("apiUrl").value = url;
+        document.getElementById("startPage").value = startPage;
+        document.getElementById("endPage").value = endPage;
+        closePopup("loadUrlPopup");
+    }
+
+    // Guardar URL en localStorage
+    function saveUrl() {
+        const apiUrl = document.getElementById("apiUrl").value;
+        const urlName = document.getElementById("urlName").value;
+        const currentDate = new Date().toLocaleDateString();
+        const startPage = parseInt(document.getElementById("saveStartPage").value);
+        const endPage = parseInt(document.getElementById("saveEndPage").value);
+        const urlData = { name: urlName, url: apiUrl, date: currentDate, startPage: startPage, endPage: endPage };
+
+        const savedUrls = JSON.parse(localStorage.getItem("savedUrls") || "[]");
+        savedUrls.push(urlData);
+        localStorage.setItem("savedUrls", JSON.stringify(savedUrls));
+
+        closePopup("saveUrlPopup");
+        alert("URL guardada exitosamente.");
+    }
+
+    // Función para eliminar una URL guardada
+    function deleteUrl(index) {
+        const savedUrls = JSON.parse(localStorage.getItem("savedUrls") || "[]");
+        savedUrls.splice(index, 1);
+        localStorage.setItem("savedUrls", JSON.stringify(savedUrls));
+        openLoadUrlPopup();  // Refrescar la lista de URLs guardadas
+    }
+
+    // Función para mostrar la ventana emergente y la superposición
+    function showPopup(popupId) {
+        document.getElementById("overlay").style.display = "block";
+        document.getElementById(popupId).style.display = "block";
+    }
+
+    // Función para cerrar la ventana emergente y la superposición
+    function closePopup(popupId) {
+        document.getElementById("overlay").style.display = "none";
+        document.getElementById(popupId).style.display = "none";
+    }
+
+    // Función para cargar datos desde la API en el rango de páginas definido
+    async function fetchData() {
+        const baseUrl = document.getElementById('apiUrl').value.trim();
+        const startPage = parseInt(document.getElementById('startPage').value);
+        const endPage = parseInt(document.getElementById('endPage').value);
+        const loadStatus = document.getElementById('loadStatus');
+        jsonData = [];
+
+        loadStatus.innerHTML = "Cargando datos...";
+        document.getElementById("searchButton").disabled = true;
+        document.getElementById("downloadButton").disabled = true;
+
+        try {
+            for (let page = startPage; page <= endPage; page++) {
+                const url = baseUrl.replace(/page=\d+/, `page=${page}`);
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Error en página ${page}: ${response.statusText}`);
+                
+                const data = await response.json();
+                if (data.recordings) {
+                    jsonData = jsonData.concat(data.recordings);
+                }
+                loadStatus.innerHTML = `<span class="text-green-600 font-medium">Página ${page} cargada.</span><br>${loadStatus.innerHTML}`;
+            }
+
+            loadStatus.innerHTML = `<span class="text-green-600 font-medium">Todos los datos cargados exitosamente.</span>`;
+            document.getElementById("searchButton").disabled = false;
+            document.getElementById("downloadButton").disabled = false;
+
+            localStorage.setItem("jsonDataCache", JSON.stringify(jsonData));
+        } catch (error) {
+            loadStatus.innerHTML = `<span class="text-red-600 font-medium">Error al cargar datos: ${error.message}</span>`;
+        }
+    }  // Variable global para almacenar todos los datos cargados
+
+    // Función para verificar si un registro ya existe en el conjunto de resultados
+    function isDuplicate(record, results) {
+        return results.some(existing => 
+            existing.isrc === record.isrc &&
+            existing.recordingTitle === record.recordingTitle &&
+            existing.recordingDisplayArtistName === record.recordingDisplayArtistName &&
+            existing.duration === record.duration &&
+            existing.dsp === record.dsp
+        );
+    }  // Función para buscar múltiples ISRCs en los datos cargados, agrupando resultados por ISRC y eliminando DSP duplicados
+function searchISRC() {
+    const isrcList = document.getElementById('isrcList').value.split('\n').map(isrc => isrc.trim()).filter(isrc => isrc !== "");
+    const resultsDiv = document.getElementById('results');
+    const searchStatus = document.getElementById('searchStatus');
+
+    resultsDiv.innerHTML = ''; // Limpiar resultados previos
+    let filteredResults = {}; // Objeto para almacenar ISRCs únicos y sus registros
+
+    if (isrcList.length === 0) {
+        // Si no hay ISRCs ingresados, agrupar todos los datos por ISRC único
+        jsonData.forEach(record => {
+            if (!filteredResults[record.isrc]) {
+                filteredResults[record.isrc] = [];
+            }
+            filteredResults[record.isrc].push(record);
+        });
+        searchStatus.innerHTML = `<span class="text-green-600 font-medium">Mostrando todos los registros cargados.</span>`;
+    } else {
+        // Filtrar y agrupar los ISRCs ingresados
+        isrcList.forEach(isrc => {
+            const matches = jsonData.filter(record => record.isrc && record.isrc.toUpperCase() === isrc.toUpperCase());
+            if (matches.length > 0) {
+                filteredResults[isrc] = matches;
+            }
+        });
+        searchStatus.innerHTML = Object.keys(filteredResults).length > 0
+            ? `<span class="text-green-600 font-medium">Búsqueda completada. Resultados mostrados abajo.</span>`
+            : `<span class="text-red-600 font-medium">No se encontraron resultados para los ISRCs proporcionados.</span>`;
+    }
+
+    // Mostrar resultados agrupados y agregar funcionalidad de expansión/colapso
+    for (const isrc in filteredResults) {
+        const recordings = filteredResults[isrc];
+        const firstRecording = recordings[0];
+        const formattedDuration = firstRecording.duration ? formatDuration(firstRecording.duration) : 'N/A';
+
+        // Usar un Set para obtener DSPs únicos
+        const uniqueDsps = new Set(recordings.map(record => record.dsp).filter(dsp => dsp));
+
+        resultsDiv.innerHTML += `
+            <div class="p-2 border-b border-gray-200">
+                <p onclick="toggleDetails('${isrc}')" class="cursor-pointer text-blue-500 hover:underline">
+                    <strong>ISRC:</strong> ${isrc}
+                </p>
+                <p class="cursor-pointer text-cyan-900 hover:underline">
+                    <strong>Duración:</strong> ${formattedDuration}
+                </p>
+                <div id="details-${isrc}" class="details-content transition-all duration-500 overflow-hidden max-h-0">
+                    <p><strong>Título:</strong> ${firstRecording.recordingTitle}</p>
+                    <p><strong>Artista:</strong> ${firstRecording.recordingDisplayArtistName || 'N/A'}</p>
+                    <div class="ml-4">
+                        <p><strong>Disponibilidad en DSPs:</strong></p>
+                        <ul class="list-disc list-inside">
+                            ${Array.from(uniqueDsps).map(dsp => `<li><strong>DSP:</strong> ${dsp}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+}
+
+// Función para convertir segundos a "minutos y segundos"
+function formatDuration(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`; // Formato MM:SS
+}
+
+// Función para alternar la visibilidad de los detalles de un ISRC específico
+function toggleDetails(isrc) {
+    const detailsDiv = document.getElementById(`details-${isrc}`);
+    if (detailsDiv.classList.contains("max-h-0")) {
+        detailsDiv.classList.remove("max-h-0");
+        detailsDiv.classList.add("max-h-[1000px]"); // Valor alto para permitir expansión completa
+    } else {
+        detailsDiv.classList.remove("max-h-[1000px]");
+        detailsDiv.classList.add("max-h-0");
+    }
+}
+
+    // Función para descargar jsonData como un archivo .json
+    function downloadJsonData() {
+        const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "data_colectada.json";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+</script>
+
+
+</html>

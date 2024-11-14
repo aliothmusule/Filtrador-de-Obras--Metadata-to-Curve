@@ -12,7 +12,7 @@ with open(log_filename, 'a', encoding='utf-8') as log_file:
 
 # Cargar el archivo de datos unificados
 archivo_origen = 'METADATA_PUBLISHING_UNIFICADO.xlsx'
-archivo_destino = 'METADATA_PUBLISHING__U_ISWC.xlsx'
+archivo_destino = 'METADATA_PUBLISHING_U_ISWC.xlsx'
 
 # Conjunto de valores de ISWC inválidos
 iswc_invalidos = {"", " ", None, "Sin Codigo", '0', '--', 'Pendiente', 'Pendiente Reg.', 'PENDIENTE', 'NO', 'FaltaMedley', 0,'Sin ISWC ','Sin ISWC','SIN ISWC','SIN Codigo'}
@@ -50,9 +50,9 @@ columnas_unificar = [
 
 
 # Separar los registros con ISWC válido e inválido
-df_invalidos = df[df['ISWC'].isin(iswc_invalidos)].copy()
-df_validos = df[~df['ISWC'].isin(iswc_invalidos)].copy() #importante que no quiten el: ~ porque es parte del proceso de unificacion
 
+df_invalidos = df[df['ISWC'].isin(iswc_invalidos) | df['ISWC'].apply(pd.isna)].copy()
+df_validos = df[~df['ISWC'].isin(iswc_invalidos) & ~df['ISWC'].apply(pd.isna)].copy()
 # Función para unificar registros con el mismo ISWC e imprimir los ISRC que se están unificando
 def unificar_por_iswc(df, columnas):
     registros_log = []

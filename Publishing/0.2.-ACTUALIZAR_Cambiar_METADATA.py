@@ -72,7 +72,7 @@ def main():
 
     archivo_remoto_url = config.get("archivo_remoto")
     archivo_local = "METADATA CENTRAL.xlsx"  # Nombre del archivo local existente
-    archivo_descargado = "METADATA CENTRAL.xlsx"  # Nombre del archivo descargado desde la URL
+    archivo_descargado = "METADATA CENTRAL.xlsx"  # Nombre que se renombrará para el archivo descargado desde la URL.
 
     if not archivo_remoto_url:
         print("[ERROR] La configuración no contiene la URL del archivo remoto.")

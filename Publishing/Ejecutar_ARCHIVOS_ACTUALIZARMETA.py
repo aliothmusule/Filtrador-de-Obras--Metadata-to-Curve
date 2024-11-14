@@ -1,23 +1,48 @@
+import subprocess
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from tqdm import tqdm
+from colorama import Fore, Style, init
+
+# Inicializar colorama para soportar colores en Windows
+init()
+
+def run_process(command, description):
+    """Ejecuta un proceso externo con barra de progreso."""
+    with tqdm(total=100, desc=description, bar_format="{l_bar}%s{bar}%s{r_bar}" % (Fore.CYAN, Fore.RESET)) as pbar:
+        pbar.update(20)
+        time.sleep(0.5)  # Simulación de carga
+        subprocess.run(command)
+        pbar.update(80)  # Completa la barra al finalizar
+        pbar.close()
+    print(Fore.GREEN + f"{description} completado con éxito." + Style.RESET_ALL)
 
 def main():
+    print(Fore.YELLOW + "-------------------INICIA CÓDIGO-----------------------" + Style.RESET_ALL)
+    print(Fore.CYAN + "Iniciando proceso - Actualizar METADATA." + Style.RESET_ALL)
 
-    # main.py
-    import subprocess
+    # Procesos secuenciales
+    run_process(['python', '0.2.-ACTUALIZAR_Cambiar_METADATA.py'], "Actualizando METADATA")
+    run_process(['python', '1.-Publishing.py'], "Proceso 1 - Publicando")
+    run_process(['python', '2.-separar_por_Porcentajes.py'], "Proceso 2 - Separación por Porcentajes")
+    run_process(['python', '3.-Unificacion_Obras_Porcentajes.py'], "Proceso 3 - Unificación de Obras por Porcentajes")
+    run_process(['python', '4.-Unificacion_ISWC.py'], "Proceso 4 - Unificación de ISWC")
 
-    print("Iniciando proceso -Actualizar METADATA.")
-    subprocess.run(['python', '0.2.-ACTUALIZAR_Cambiar_METADATA.py'])
-    print("Archivo Actualizar METADATA realizado con exito.")
-    subprocess.run(['python', '1.-Publishing.py'])
-    print("Proceso 1.- Realizado correctamente.")
-    subprocess.run(['python', '2.-separar_por_Porcentajes.py'])
-    print("Proceso 2.- Realizado correctamente")
-    subprocess.run(['python', '3.-Unificacion_Obras_Porcentajes.py'])
-    print("Proceso 3 realizado con exito")
-    subprocess.run(['python', '4.-Unificacion_ISWC.py'])
-    print("Proceso 4.- Realizado con exito")
-    subprocess.run(['python', '5.1.-[INDIVIDUAL]Buscar_Autor.py'])
-    print("Proceso 5.1 Realizado con exito.")
-    print("-------------------Finaliza codigo------------------------")
+    # Procesos paralelos
+    print(Fore.MAGENTA + "Iniciando procesos 5.1 y 5.2 en paralelo..." + Style.RESET_ALL)
+    tasks = {
+        "Proceso 5.1 - Buscar Autor (Individual)": ['python', '5.1.-[INDIVIDUAL]Buscar_Autor.py'],
+        "Proceso 5.2 - Buscar Autor (U_ISWC_Individual)": ['python', '5.2.-[U_ISWC_INDIVIDUAL]Buscar_Autor.py']
+    }
+
+    # Ejecutar procesos en paralelo
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        futures = {executor.submit(subprocess.run, cmd): desc for desc, cmd in tasks.items()}
+        for future in as_completed(futures):
+            desc = futures[future]
+            print(Fore.GREEN + f"{desc} completado con éxito en paralelo." + Style.RESET_ALL)
+
+    print(Fore.YELLOW + "-------------------Finaliza Código------------------------" + Style.RESET_ALL)
 
 if __name__ == "__main__":
     main()
