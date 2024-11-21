@@ -76,11 +76,11 @@ def es_registro_valido(row):
 # Función para comparar datos y generar reporte
 def comparar_datos(df_local, df_remoto):
     id_col = 'ID IDENTIFICADOR'
-    title_col = 'Title'
+    title_col = 'Title'  # Columna adicional para incluir en el log
     diferencias = []
     nuevos_registros = []
-    registros_eliminados = []  # Nueva lista para los eliminados
 
+    # Columnas que se ignorarán en la comparación (Release Date en este caso)
     columnas_ignorar = ['Release Date']
 
     try:
@@ -95,21 +95,24 @@ def comparar_datos(df_local, df_remoto):
 
             for _, row_remoto in grupo_remoto.iterrows():
                 id_remoto = str(row_remoto.get(id_col, '')).strip()
-                title_remoto = str(row_remoto.get(title_col, '')).strip()
+                title_remoto = str(row_remoto.get(title_col, '')).strip()  # Obtener el Title del archivo remoto
 
+                # Caso: El ID IDENTIFICADOR está vacío, pero el registro tiene datos en Artist, ISRC o UPC
                 if not id_remoto and (row_remoto["Artist"] or row_remoto["ISRC"] or row_remoto["UPC"]):
                     nuevos_registros.append({k: v for k, v in row_remoto.items() if k not in columnas_ignorar})
                     print("[NUEVO SIN IDENTIFICAR] Registro con datos parciales agregado como nuevo.")
                     continue
 
+                # Caso: Registro con ID IDENTIFICADOR válido
                 if id_remoto in local_ids.groups:
                     grupo_local = local_ids.get_group(id_remoto)
                     diferencia_encontrada = False
 
                     for _, row_local in grupo_local.iterrows():
-                        diferencias_registro = {"Title": title_remoto}
+                        diferencias_registro = {"Title": title_remoto}  # Incluye Title en las diferencias
+                        i=0
                         for columna in df_local.columns:
-                            if columna in columnas_ignorar:
+                            if columna in columnas_ignorar:  # Ignorar columnas especificadas
                                 continue
                             valor_local = str(row_local.get(columna, '')).strip()
                             valor_remoto = str(row_remoto.get(columna, '')).strip()
@@ -128,16 +131,11 @@ def comparar_datos(df_local, df_remoto):
                                 "diferencias": diferencias_registro
                             })
                             print(f"[DIFERENCIA] ID '{id_remoto}' tiene datos diferentes.")
+                            i=i+1
                 else:
+                    # Registro nuevo con ID IDENTIFICADOR válido
                     nuevos_registros.append({k: v for k, v in row_remoto.items() if k not in columnas_ignorar})
                     print(f"[NUEVO] ID '{id_remoto}' es un nuevo registro.")
-
-        # Identificar registros eliminados (presentes en local pero no en remoto)
-        for id_identificador, grupo_local in local_ids:
-            if id_identificador not in remoto_ids.groups:
-                for _, row_local in grupo_local.iterrows():
-                    registros_eliminados.append({k: v for k, v in row_local.items() if k not in columnas_ignorar})
-                print(f"[ELIMINADO] ID '{id_identificador}' no se encontró en el archivo remoto.")
 
         print("[INFO] Comparación de datos finalizada.")
     except KeyError as e:
@@ -147,35 +145,30 @@ def comparar_datos(df_local, df_remoto):
         print(f"[ERROR] Error durante la comparación de datos: {e}")
         exit(1)
 
-    return diferencias, nuevos_registros, registros_eliminados
+    return diferencias, nuevos_registros
 
-import json
-from datetime import datetime, time
-
-def convertir_a_serializable(obj):
-    if isinstance(obj, (datetime, time)):
-        return obj.isoformat()  # Convierte datetime o time a una cadena ISO 8601
-    raise TypeError(f"Type {type(obj)} not serializable")
-
-def guardar_resultados(diferencias, nuevos_registros, registros_eliminados):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+# Función para guardar los resultados en un archivo JSON sin sobrescribir
+def guardar_resultados(diferencias, nuevos_registros):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Convertir datetime a string
     resultado = {
         "timestamp": timestamp,
         "diferencias": diferencias,
-        "nuevos_registros": nuevos_registros,
-        "registros_eliminados": registros_eliminados
+        "nuevos_registros": nuevos_registros
     }
 
-    # Guardar el resultado actual en 'resultado_actual.json'
-    with open('resultado_actual.json', 'w', encoding='utf-8') as resultado_file:
-        json.dump(resultado, resultado_file, ensure_ascii=False, indent=4, default=convertir_a_serializable)
-    print("[INFO] Resultado actual guardado en 'resultado_actual.json'.")
-    
-    # Agregar el registro al historial en 'historial.log'
-    with open('historial.log', 'a', encoding='utf-8') as historial_file:
-        historial_file.write(json.dumps(resultado, ensure_ascii=False, indent=4, default=convertir_a_serializable) + '\n')
-    print("[INFO] Registro agregado al historial en 'historial.log'.")
-
+    # Intentar cargar el archivo existente si existe, o crear uno nuevo si no existe
+    try:
+        with open('resultado.json', 'r+', encoding='utf-8') as resultado_file:
+            data = json.load(resultado_file)
+            data.append(resultado)  # Agregar nuevo log al final de la lista
+            resultado_file.seek(0)
+            json.dump(data, resultado_file, ensure_ascii=False, indent=4)
+        print("[INFO] Resultados agregados en 'resultado.json'.")
+    except FileNotFoundError:
+        # Si el archivo no existe, crear uno nuevo con la primera entrada en una lista
+        with open('resultado.json', 'w', encoding='utf-8') as resultado_file:
+            json.dump([resultado], resultado_file, ensure_ascii=False, indent=4)
+        print("[INFO] Archivo 'resultado.json' creado y resultados guardados.")
 
 # Función principal
 def main():
@@ -195,22 +188,19 @@ def main():
     df_remoto = cargar_excel_remoto(archivo_remoto_url)
 
     # Comparar datos
-    diferencias, nuevos_registros, registros_eliminados = comparar_datos(df_local, df_remoto)
+    diferencias, nuevos_registros = comparar_datos(df_local, df_remoto)
 
     # Guardar resultados
-    guardar_resultados(diferencias, nuevos_registros, registros_eliminados)
+    guardar_resultados(diferencias, nuevos_registros)
 
     # Variables para el conteo de registros
     total_diferencias = len(diferencias)
     total_nuevos = len(nuevos_registros)
-    total_eliminados = len(registros_eliminados)
 
     # Imprimir resultados en consola
     print("[INFO] Proceso completado exitosamente.")
     print(f"Total de diferencias: {total_diferencias}")
     print(f"Total de nuevos registros: {total_nuevos}")
-    print(f"Total de registros eliminados: {total_eliminados}")
-    print(f"Verifique los datos actuales en resultado_actual.json")
 
 if __name__ == "__main__":
     main()

@@ -238,13 +238,14 @@
             existing.dsp === record.dsp
         );
     }  // Función para buscar múltiples ISRCs en los datos cargados, agrupando resultados por ISRC y eliminando DSP duplicados
-function searchISRC() {
+    function searchISRC() {
     const isrcList = document.getElementById('isrcList').value.split('\n').map(isrc => isrc.trim()).filter(isrc => isrc !== "");
     const resultsDiv = document.getElementById('results');
     const searchStatus = document.getElementById('searchStatus');
 
     resultsDiv.innerHTML = ''; // Limpiar resultados previos
     let filteredResults = {}; // Objeto para almacenar ISRCs únicos y sus registros
+    let notFoundISRCs = []; // Lista para almacenar los ISRCs no encontrados
 
     if (isrcList.length === 0) {
         // Si no hay ISRCs ingresados, agrupar todos los datos por ISRC único
@@ -261,6 +262,8 @@ function searchISRC() {
             const matches = jsonData.filter(record => record.isrc && record.isrc.toUpperCase() === isrc.toUpperCase());
             if (matches.length > 0) {
                 filteredResults[isrc] = matches;
+            } else {
+                notFoundISRCs.push(isrc);
             }
         });
         searchStatus.innerHTML = Object.keys(filteredResults).length > 0
@@ -268,13 +271,12 @@ function searchISRC() {
             : `<span class="text-red-600 font-medium">No se encontraron resultados para los ISRCs proporcionados.</span>`;
     }
 
-    // Mostrar resultados agrupados y agregar funcionalidad de expansión/colapso
+    // Mostrar resultados encontrados
     for (const isrc in filteredResults) {
         const recordings = filteredResults[isrc];
         const firstRecording = recordings[0];
         const formattedDuration = firstRecording.duration ? formatDuration(firstRecording.duration) : 'N/A';
 
-        // Usar un Set para obtener DSPs únicos
         const uniqueDsps = new Set(recordings.map(record => record.dsp).filter(dsp => dsp));
 
         resultsDiv.innerHTML += `
@@ -295,6 +297,18 @@ function searchISRC() {
                         </ul>
                     </div>
                 </div>
+            </div>
+        `;
+    }
+
+    // Mostrar ISRCs no encontrados
+    if (notFoundISRCs.length > 0) {
+        resultsDiv.innerHTML += `
+            <div class="p-2 border-b border-gray-200">
+                <p class="text-red-500"><strong>ISRCs no encontrados:</strong></p>
+                <ul class="list-disc list-inside text-red-500">
+                    ${notFoundISRCs.map(isrc => `<li>${isrc}</li>`).join('')}
+                </ul>
             </div>
         `;
     }
