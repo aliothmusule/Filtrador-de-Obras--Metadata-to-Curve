@@ -145,7 +145,7 @@ if not os.path.exists(archivo_exportado):
 
 else:
     # Si el archivo ya existe, abrirlo con  openpyxl y aplicar los colores faltantes
-    print("El archivo ya existe. Aplicando colores faltantes con openpyxl...")
+    print("El archivo ya existe. Aplicando colores faltantes con openpyxl... Esto puede tomar un tiempo..")
     wb = load_workbook(archivo_exportado) 
     ws = wb.active
 
