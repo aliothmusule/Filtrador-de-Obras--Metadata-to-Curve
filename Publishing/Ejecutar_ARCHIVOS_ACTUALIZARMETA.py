@@ -4,6 +4,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 from colorama import Fore, Style, init
 
+
+##
+##ARCHIVOS del 1 al 5.2
+##
 # Inicializar colorama para soportar colores en Windows
 init()
 
