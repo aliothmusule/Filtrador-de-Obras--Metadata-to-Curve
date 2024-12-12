@@ -31,14 +31,19 @@ def main():
     run_process(['python', '2.-separar_por_Porcentajes.py'], "Proceso 2 - Separación por Porcentajes")
     run_process(['python', '3.-Unificacion_Obras_Porcentajes.py'], "Proceso 3 - Unificación de Obras por Porcentajes")
     run_process(['python', '4.-Unificacion_ISWC.py'], "Proceso 4 - Unificación de ISWC")
+    run_process(['python', '5.-ISWC_Limpieza.py'], "Proceso 5 - LIMPIEZA PORCENTAJES de obras")
 
     # Procesos paralelos
     print(Fore.MAGENTA + "Iniciando procesos 5.1 y 5.2 en paralelo..." + Style.RESET_ALL)
     tasks = {
-        "Proceso 5.1 - Buscar Autor (Individual)": ['python', '5.1.-[INDIVIDUAL]Buscar_Autor.py'],
-        "Proceso 5.2 - Buscar Autor (U_ISWC_Individual)": ['python', '5.2.-[U_ISWC_INDIVIDUAL]Buscar_Autor.py']
+        "Proceso 6.2 - Buscar Autor (U_ISWC_Individual)": ['python', '5.2.-[U_ISWC_INDIVIDUAL]Buscar_Autor.py']
     }
 
+    ''' tasks = {
+        "Proceso 6.1 - Buscar Autor (Individual)": ['python', '5.1.-[INDIVIDUAL]Buscar_Autor.py'],
+        "Proceso 6.2 - Buscar Autor (U_ISWC_Individual)": ['python', '5.2.-[U_ISWC_INDIVIDUAL]Buscar_Autor.py']
+    }
+    '''
     # Ejecutar procesos en paralelo
     with ThreadPoolExecutor(max_workers=2) as executor:
         futures = {executor.submit(subprocess.run, cmd): desc for desc, cmd in tasks.items()}

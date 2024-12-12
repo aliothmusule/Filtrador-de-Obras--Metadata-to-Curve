@@ -19,7 +19,7 @@ os.makedirs(output_folder, exist_ok=True)
 print(f"[SUCCESS] Carpeta '{output_folder}' creada o ya existente.")
 
 # Cargar el archivo de datos unificados
-archivo_origen = 'METADATA_PUBLISHING_U_ISWC.xlsx'
+archivo_origen = 'METADATA_PUBLISHING_U_ISWC_LIMPIADO.xlsx'
 
 try:
     df = pd.read_excel(archivo_origen, sheet_name='Unificados_Por_ISWC')
