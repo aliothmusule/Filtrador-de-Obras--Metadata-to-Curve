@@ -22,7 +22,7 @@ print(f"[SUCCESS] Carpeta '{output_folder}' creada o ya existente.")
 archivo_origen = 'METADATA_PUBLISHING_U_ISWC_LIMPIADO.xlsx'
 
 try:
-    df = pd.read_excel(archivo_origen, sheet_name='Unificados_Por_ISWC')
+    df = pd.read_excel(archivo_origen, sheet_name='Unificados_Por_ISWC_Limpio')
     print(f"[SUCCESS] Archivo '{archivo_origen}' cargado exitosamente.")
 except Exception as e:
     print(f"[ERROR] No se pudo cargar el archivo '{archivo_origen}': {e}")
